@@ -68,16 +68,19 @@ def check_for_invalid_level_domains(filename, psl, psl_local):
     Public suffixes are supplied from two sources: online database and local list.
     """
     invalid = set()
-    for line in files[filename]:
+    for line_number, line in enumerate(files[filename], start=1):
         domain = line.strip()
+        if not domain:
+            print(f"Empty or whitespace-only line detected at line {line_number} in {filename!r}. Please remove it.")
+            sys.exit(1)
         parts = domain.split('.')
         public_valid = local_valid = False
         if len(psl.privateparts(domain)) == 1:
             public_valid = True
-        for i in range(len(parts)):
-            suffix = '.'.join(parts[i:])
+        for idx in range(len(parts)):
+            suffix = '.'.join(parts[idx:])
             if suffix in psl_local:
-                private_parts = parts[:i]
+                private_parts = parts[:idx]
                 if len(private_parts) == 1:
                     local_valid = True
                     break
